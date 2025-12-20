@@ -13,12 +13,11 @@ env:
       
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        toolchain: ["nightly", "stable", "beta"]
-        os: ["windows-latest"]
+        toolchain: ["nightly", "stable"]
         target: ["x86_64-pc-windows-msvc", "x86_64-pc-windows-gnu", "i686-pc-windows-msvc"]
     steps:
     - uses: actions/checkout@v6

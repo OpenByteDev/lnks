@@ -56,6 +56,8 @@ pub enum Initialization {
 
 /// Initializes COM for the current thread.
 /// This is done automatically when reading or writing shortcuts (as STA).
+///
+/// See also <https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex>
 pub fn initialize_as(kind: Type) -> Result<Initialization, Error> {
     COM_INIT.with(|state| {
         if state.get() {
@@ -91,6 +93,8 @@ pub(crate) fn ensure_initialized() -> crate::Result<()> {
 }
 
 /// Uninitialize COM for the current thread.
+///
+/// See also <https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-couninitialize>
 pub fn uninitialize() {
     COM_INIT.with(|state| {
         if state.get() {

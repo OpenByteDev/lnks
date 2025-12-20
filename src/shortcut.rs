@@ -21,6 +21,8 @@ use crate::{
 };
 
 /// Represents a Windows shortcut (`.lnk`) file.
+///
+/// See also <https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishelllinka>
 #[derive(Debug, Clone, Default)]
 pub struct Shortcut {
     /// Path to the target executable or file.

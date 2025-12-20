@@ -3,8 +3,6 @@ use std::num::NonZeroU8;
 use enumflags2::{BitFlags, bitflags};
 
 /// Hotkey modifier flags of a shortcut.
-///
-/// See <https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinkw-gethotkey>.
 #[bitflags]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,6 +22,8 @@ pub enum HotkeyMod {
 
 /// Represents a Windows shortcut hotkey.
 /// If both `key_code` and `modifiers` are zero, no hotkey is assigned.
+///
+/// See also <https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinkw-gethotkey>.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Hotkey {
     /// Virtual key code

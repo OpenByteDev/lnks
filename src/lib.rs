@@ -1,6 +1,10 @@
 #![cfg(windows)]
 #![warn(clippy::pedantic)]
-#![allow(clippy::missing_errors_doc, clippy::missing_panics_doc, clippy::redundant_closure_for_method_calls)]
+#![allow(
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::redundant_closure_for_method_calls
+)]
 
 //! `lnks` provides a high-level API for reading and writing Windows `.lnk` (Shell Link) files.
 //!

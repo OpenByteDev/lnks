@@ -1,6 +1,6 @@
 [package]
 name = "lnks"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library for reading and writing windows shortcuts (.lnk)."
 repository = "https://github.com/OpenByteDev/lnks"
 documentation = "https://docs.rs/lnks"

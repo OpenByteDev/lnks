@@ -45,7 +45,7 @@ jobs:
       - name: Install cargo-deadlinks
         run: cargo install cargo-deadlinks
       - name: Check dead links in doc
-        run: cargo deadlinks
+        run: cargo deadlinks --check-http --ignore-fragments --check-intra-doc-links
 
   clippy:
     runs-on: windows-latest

@@ -1,0 +1,28 @@
+[package]
+name = "lnks"
+version = "0.1.0"
+description = "A library for reading and writing windows shortcuts (.lnk)."
+repository = "https://github.com/OpenByteDev/lnks"
+documentation = "https://docs.rs/lnks"
+license = "MIT"
+authors = ["OpenByte <development.openbyte@gmail.com>"]
+edition = "2024"
+categories = ["api-bindings", "filesystem", "os::windows-apis"]
+keywords = ["lnk", "windows", "shell-link", "parser"]
+
+[dependencies]
+windows = { version = "0.62", features = [
+  "std",
+  "Win32_System_Com",
+  "Win32_UI_Shell_Common",
+  "Win32_Storage_FileSystem",
+  "Win32_UI_WindowsAndMessaging"
+], default-features = false }
+widestring = { version = "1.2", features = ["std"], default-features = false }
+num_enum = { version = "0.7", default-features = false }
+thiserror = { version = "2.0", default-features = false }
+enumflags2 = { version = "0.7", default-features = false }
+
+[dev-dependencies]
+dunce = { version = "1", default-features = false }
+uuid = { version = "1", features = ["v4"], default-features = false  }

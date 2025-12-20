@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTDOCFLAGS: "--deny warnings"
+  RUSTFLAGS: "--deny warnings"
+      
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: ["nightly", "stable", "beta"]
+        os: ["windows-latest"]
+        target: ["x86_64-pc-windows-msvc", "x86_64-pc-windows-gnu", "i686-pc-windows-msvc"]
+    steps:
+    - uses: actions/checkout@v6
+    
+    - name: Install latest rust ${{ matrix.toolchain }} for ${{ matrix.target }}
+      uses: dtolnay/rust-toolchain@master
+      with:
+          target: ${{ matrix.target }}
+          toolchain: ${{ matrix.toolchain }}
+      
+    - name: Build
+      run: cargo build --target ${{ matrix.target }} --all-targets
+      
+    - name: Test
+      run: cargo test --target ${{ matrix.target }} --all-targets --all-features -- --nocapture
+
+  documentation:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install latest beta
+        uses: dtolnay/rust-toolchain@beta
+      - name: Generate documentation
+        run: cargo doc --all-features
+      - name: Install cargo-deadlinks
+        run: cargo install cargo-deadlinks
+      - name: Check dead links in doc
+        run: cargo deadlinks
+
+  clippy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install latest beta
+        uses: dtolnay/rust-toolchain@beta
+        with:
+          components: clippy
+      - name: Clippy check
+        run: cargo clippy --all-features
+        
+  fmt:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install latest beta
+        uses: dtolnay/rust-toolchain@beta
+        with:
+            components: rustfmt
+      - name: Format check
+        run: cargo fmt --all -- --check

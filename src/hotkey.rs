@@ -35,7 +35,8 @@ pub struct Hotkey {
 impl Hotkey {
     /// Create a hotkey from its parts.
     #[must_use]
-    pub fn new(key_code: NonZeroU8, modifiers: BitFlags<HotkeyMod>) -> Self {
+    pub fn new(key_code: NonZeroU8, modifiers: impl Into<BitFlags<HotkeyMod>>) -> Self {
+        let modifiers = modifiers.into();
         Self {
             key_code,
             modifiers,

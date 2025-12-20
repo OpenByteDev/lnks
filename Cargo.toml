@@ -11,7 +11,7 @@ categories = ["api-bindings", "filesystem", "os::windows-apis"]
 keywords = ["lnk", "windows", "shell-link", "parser"]
 
 [dependencies]
-windows = { version = "0.62", features = [
+windows = { version = ">=0.59, <=0.62", features = [
   "std",
   "Win32_System_Com",
   "Win32_UI_Shell_Common",

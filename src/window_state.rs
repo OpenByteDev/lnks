@@ -28,7 +28,7 @@ pub enum WindowState {
 }
 
 impl WindowState {
-    /// Creates a [`WindowState`] from a raw Win32 code.
+    /// Creates a [`WindowState`] from a raw Win32 [`SHOW_WINDOW_CMD`](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/struct.SHOW_WINDOW_CMD.html).
     ///
     /// Unknown values are mapped to [`WindowState::Other`].
     #[must_use]
@@ -36,7 +36,7 @@ impl WindowState {
         Self::from_code(raw.0)
     }
 
-    /// Converts this [`WindowState`] into a raw Win32 [`SHOW_WINDOW_CMD`].
+    /// Converts this [`WindowState`] into a raw Win32 [`SHOW_WINDOW_CMD`](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/struct.SHOW_WINDOW_CMD.html).
     #[must_use]
     pub fn to_raw(&self) -> SHOW_WINDOW_CMD {
         SHOW_WINDOW_CMD(self.to_code())

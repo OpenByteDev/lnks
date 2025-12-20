@@ -22,7 +22,7 @@
 //! # }
 //! ```
 //!
-//! ### Create and save a new shortcut to Notepad
+//! ### Create a new shortcut
 //!
 //! ```no_run
 //! # use std::path::Path;

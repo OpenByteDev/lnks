@@ -13,7 +13,7 @@ let path = Path::new(r"C:\Users\Public\Desktop\Notepad.lnk");
 let shortcut = lnks::Shortcut::load(path).unwrap();
 ```
 
-### Create and save a new shortcut to Notepad
+### Create a new shortcut
 ```rust
 let mut shortcut = lnks::Shortcut::new(r"C:\Windows\System32\notepad.exe");
 shortcut.arguments = Some(r"C:\Windows\win.ini".to_string());

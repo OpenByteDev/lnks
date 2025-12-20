@@ -1,4 +1,4 @@
-use lnks::{Hotkey, Icon, Shortcut, WindowState};
+use lnks::{Icon, Shortcut, WindowState};
 use std::{
     env,
     fmt::{self, Debug},

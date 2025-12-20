@@ -2,6 +2,8 @@ use num_enum::{self, FromPrimitive, IntoPrimitive};
 use windows::Win32::UI::WindowsAndMessaging::SHOW_WINDOW_CMD;
 
 /// Initial window display state for a launched application.
+/// 
+/// See also <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow>
 #[repr(i32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, IntoPrimitive, FromPrimitive)]
 pub enum WindowState {
@@ -26,7 +28,7 @@ pub enum WindowState {
 }
 
 impl WindowState {
-    /// Creates a [`WindowState`] from a raw Win32 [`SHOW_WINDOW_CMD`].
+    /// Creates a [`WindowState`] from a raw Win32 code.
     ///
     /// Unknown values are mapped to [`WindowState::Other`].
     #[must_use]

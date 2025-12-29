@@ -19,13 +19,13 @@ pub struct Icon {
 }
 
 impl Icon {
-    /// Create a new `Icon` using the first icon (`index = 0`) from the given path.
+    /// Create a new [`Icon`] using the first icon (`index = 0`) from the given path.
     #[must_use]
     pub fn new(path: PathBuf) -> Self {
         Self::with_index(path, 0)
     }
 
-    /// Create a new `Icon` using an explicit icon index.
+    /// Create a new [`Icon`] using an explicit icon index.
     #[must_use]
     pub fn with_index(path: PathBuf, index: i32) -> Self {
         Self { path, index }

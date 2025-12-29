@@ -8,7 +8,7 @@
 
 //! `lnks` provides a high-level API for reading and writing Windows `.lnk` (Shell Link) files.
 //!
-//! It wraps the COM-based Shell APIs `IShellLinkW` and `IPersistFile`, including support for reading and toggling the undocumented "Run as administrator" flag.
+//! It wraps the COM-based Shell APIs [`IShellLinkW`](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishelllinkw) and [`IPersistFile`](https://learn.microsoft.com/en-us/windows/win32/api/objidl/nn-objidl-ipersistfile), including support for reading and toggling the undocumented "Run as administrator" flag.
 //!
 //! ## Examples
 //!

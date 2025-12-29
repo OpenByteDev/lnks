@@ -49,7 +49,7 @@ pub enum Initialization {
     /// COM was successfully initialized by this call.
     Success,
     /// COM was already initialized on this thread, either:
-    /// - by a previous call to `initialize_as`
+    /// - by a previous call to [`initialize_as`]
     /// - by external code
     AlreadyInitialized,
 }

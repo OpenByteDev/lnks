@@ -197,9 +197,9 @@ impl fmt::Display for Hotkey {
             .collect::<Vec<_>>()
             .join("+");
         if self.has_modifiers() {
-            write!(f, "{}", self.key)
-        } else {
             write!(f, "{}+{}", mods, self.key)
+        } else {
+            write!(f, "{}", self.key)
         }
     }
 }

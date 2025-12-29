@@ -40,6 +40,7 @@ impl<T> IoLayoutExt<T> for io::Result<T> {
 const PATCH_BYTE_OFFSET: u64 = 0x15;
 const PATCH_BIT_MASK: u8 = 0x20;
 
+/// Read the `runas` flag from a `.lnk` file.
 pub(crate) fn read_runas_bit(path: &Path) -> Result<bool, Error> {
     let mut file = File::open(path).context(path)?;
 
@@ -51,6 +52,7 @@ pub(crate) fn read_runas_bit(path: &Path) -> Result<bool, Error> {
     Ok((byte[0] & PATCH_BIT_MASK) != 0)
 }
 
+/// Sets or clear the `runas` flag in a `.lnk` file.
 pub(crate) fn write_runas_bit(path: &Path, enable: bool) -> Result<(), Error> {
     let mut file = File::options()
         .read(true)

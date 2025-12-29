@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 /// Icon resource used by a Windows shortcut.
 #[derive(Debug, Clone, Default)]
@@ -40,3 +43,26 @@ impl From<Icon> for PathBuf {
         icon.path
     }
 }
+
+impl AsRef<Path> for Icon {
+    fn as_ref(&self) -> &Path {
+        &self.path
+    }
+}
+
+impl PartialEq for Icon {
+    fn eq(&self, other: &Self) -> bool {
+        if self.index != other.index {
+            return false;
+        }
+
+        let a = &self.path;
+        let b = &other.path;
+        match (fs::canonicalize(a), fs::canonicalize(b)) {
+            (Ok(a), Ok(b)) => a.as_os_str().eq_ignore_ascii_case(b.as_os_str()),
+            _ => a.as_os_str().eq_ignore_ascii_case(b.as_os_str()),
+        }
+    }
+}
+
+impl Eq for Icon {}

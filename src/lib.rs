@@ -51,6 +51,9 @@ pub use hotkey::*;
 mod icon;
 pub use icon::*;
 
+mod virtual_key;
+pub use virtual_key::*;
+
 mod shortcut;
 pub use shortcut::*;
 

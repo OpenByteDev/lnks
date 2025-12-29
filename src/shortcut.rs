@@ -1,4 +1,5 @@
 use std::{
+    fs,
     path::{Path, PathBuf},
     ptr,
 };
@@ -52,6 +53,12 @@ pub struct Shortcut {
 }
 
 impl Shortcut {
+    /// Create a new empty [`ShortcutBuilder`].
+    #[must_use]
+    pub fn builder() -> ShortcutBuilder {
+        ShortcutBuilder::default()
+    }
+
     /// Creates a new shortcut targeting the given executable.
     pub fn new(target_path: impl Into<PathBuf>) -> Self {
         let target_path = target_path.into();
@@ -180,5 +187,135 @@ impl Shortcut {
         }
 
         Ok(())
+    }
+}
+
+fn cmp_path(a: &Path, b: &Path) -> bool {
+    match (fs::canonicalize(a), fs::canonicalize(b)) {
+        (Ok(a), Ok(b)) => a.as_os_str().eq_ignore_ascii_case(b.as_os_str()),
+        _ => a.as_os_str().eq_ignore_ascii_case(b.as_os_str()),
+    }
+}
+
+#[allow(clippy::ref_option)]
+fn cmp_opt_path(a: &Option<PathBuf>, b: &Option<PathBuf>) -> bool {
+    match (a, b) {
+        (None, None) => true,
+        (Some(a), Some(b)) => cmp_path(a.as_path(), b.as_path()),
+        _ => false,
+    }
+}
+
+impl PartialEq for Shortcut {
+    fn eq(&self, other: &Self) -> bool {
+        if !cmp_opt_path(&self.target_path, &other.target_path) {
+            return false;
+        }
+
+        if self.arguments != other.arguments {
+            return false;
+        }
+
+        if !cmp_opt_path(&self.working_dir, &other.working_dir) {
+            return false;
+        }
+
+        if self.description != other.description {
+            return false;
+        }
+
+        if self.icon != other.icon {
+            return false;
+        }
+
+        if self.window_state != other.window_state {
+            return false;
+        }
+
+        if self.hotkey != other.hotkey {
+            return false;
+        }
+
+        #[cfg(feature = "runas")]
+        if self.run_as_admin != other.run_as_admin {
+            return false;
+        }
+
+        true
+    }
+}
+
+/// Builder for [`Shortcut`] to support ergonomic construction.
+///
+/// Example:
+/// ```no_run
+/// # use std::path::PathBuf;
+/// # fn main() {
+/// let s = lnks::ShortcutBuilder::new(r"C:\Windows\system32\notepad.exe")
+///     .arguments(r"C:\Windows\win.ini")
+///     .description("My Shortcut")
+///     .build();
+/// # }
+/// ```
+#[derive(Debug, Clone, Default)]
+pub struct ShortcutBuilder {
+    inner: Shortcut,
+}
+
+impl ShortcutBuilder {
+    /// Create a new builder with a target path.
+    #[must_use]
+    pub fn new(target_path: impl Into<PathBuf>) -> Self {
+        Self {
+            inner: Shortcut::new(target_path),
+        }
+    }
+
+    /// Set command-line arguments.
+    #[must_use]
+    pub fn arguments(mut self, args: impl Into<String>) -> Self {
+        self.inner.arguments = Some(args.into());
+        self
+    }
+
+    /// Set the working directory.
+    #[must_use]
+    pub fn working_dir(mut self, wd: impl Into<PathBuf>) -> Self {
+        self.inner.working_dir = Some(wd.into());
+        self
+    }
+
+    /// Set the description.
+    #[must_use]
+    pub fn description(mut self, desc: impl Into<String>) -> Self {
+        self.inner.description = Some(desc.into());
+        self
+    }
+
+    /// Set the icon.
+    #[must_use]
+    pub fn icon(mut self, icon: Icon) -> Self {
+        self.inner.icon = Some(icon);
+        self
+    }
+
+    /// Set the window state.
+    #[must_use]
+    pub fn window_state(mut self, state: WindowState) -> Self {
+        self.inner.window_state = state;
+        self
+    }
+
+    /// Set the hotkey.
+    #[must_use]
+    pub fn hotkey(mut self, hotkey: Hotkey) -> Self {
+        self.inner.hotkey = Some(hotkey);
+        self
+    }
+
+    /// Finalize the builder and return the constructed [`Shortcut`].
+    #[must_use]
+    pub fn build(self) -> Shortcut {
+        self.inner
     }
 }

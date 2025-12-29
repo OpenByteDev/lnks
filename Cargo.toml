@@ -16,7 +16,9 @@ windows = { version = ">=0.59, <=0.62", features = [
   "Win32_System_Com",
   "Win32_UI_Shell_Common",
   "Win32_Storage_FileSystem",
-  "Win32_UI_WindowsAndMessaging"
+  "Win32_UI_Controls",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_UI_Input_KeyboardAndMouse"
 ], default-features = false }
 widestring = { version = "1.2", features = ["std"], default-features = false }
 num_enum = { version = "0.7", default-features = false }

@@ -37,6 +37,7 @@ pub enum Error {
         widestring::error::ContainsNul<u16>,
     ),
 
+    #[cfg(feature = "runas")]
     /// Failed to get or set `runas` flag.
     #[error("failed to get/set runas flag: {0}")]
     RunAsFlag(

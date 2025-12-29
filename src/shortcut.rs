@@ -46,6 +46,7 @@ pub struct Shortcut {
     /// Optional keyboard shortcut.
     pub hotkey: Option<Hotkey>,
 
+    #[cfg(feature = "runas")]
     /// Whether the target should be run as administrator.
     pub run_as_admin: bool,
 }
@@ -107,7 +108,8 @@ impl Shortcut {
         let hotkey_raw = unsafe { link.GetHotkey() }.context(Some("IShellLinkW"), "GetHotkey")?;
         let hotkey = Hotkey::from_raw(hotkey_raw);
 
-        let run_as_admin = runas::read_runas_bit(path)?;
+        #[cfg(feature = "runas")]
+        let run_as_admin = runas::read_runas_bit(&path)?;
 
         let shortcut = Shortcut {
             target_path,
@@ -117,6 +119,7 @@ impl Shortcut {
             icon,
             window_state,
             hotkey,
+            #[cfg(feature = "runas")]
             run_as_admin,
         };
         Ok(shortcut)
@@ -171,6 +174,7 @@ impl Shortcut {
         unsafe { persist.SaveCompleted(PCWSTR(wout.as_ptr())) }
             .context(Some("IPersistFile"), "SaveCompleted")?;
 
+        #[cfg(feature = "runas")]
         if self.run_as_admin {
             runas::write_runas_bit(path, true)?;
         }

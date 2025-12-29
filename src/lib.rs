@@ -36,6 +36,7 @@
 //! ```
 
 mod buf_utils;
+#[cfg(feature = "runas")]
 mod runas;
 
 /// Module containing COM related utils.

@@ -101,6 +101,7 @@ fn roundtrip_notepad() {
         icon: Some(Icon::new(target.clone())),
         window_state: WindowState::default(),
         hotkey: None,
+        #[cfg(feature = "runas")]
         run_as_admin: false,
     };
     expected

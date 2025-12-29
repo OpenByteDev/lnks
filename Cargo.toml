@@ -27,5 +27,9 @@ enumflags2 = { version = "0.7", default-features = false }
 dunce = { version = "1", default-features = false }
 uuid = { version = "1", features = ["v4"], default-features = false  }
 
+[features]
+default = ["runas"]
+runas = []
+
 [package.metadata.docs.rs]
 targets = ["x86_64-pc-windows-msvc"]

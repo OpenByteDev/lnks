@@ -31,8 +31,8 @@ pub enum HotkeyModifier {
 /// A set of [`HotkeyModifier`]s.
 pub type HotkeyModifiers = BitFlags<HotkeyModifier>;
 
-impl std::fmt::Display for HotkeyModifier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for HotkeyModifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.to_str())
     }
 }

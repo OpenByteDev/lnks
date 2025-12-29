@@ -1,5 +1,5 @@
 use std::{
-    fs,
+    fmt, fs,
     path::{Path, PathBuf},
 };
 
@@ -29,6 +29,12 @@ impl Icon {
     #[must_use]
     pub fn with_index(path: PathBuf, index: i32) -> Self {
         Self { path, index }
+    }
+}
+
+impl fmt::Display for Icon {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}@{}", self.path.display(), self.index)
     }
 }
 

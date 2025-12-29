@@ -10,7 +10,9 @@ const fn convert(key: VIRTUAL_KEY) -> u8 {
 }
 
 /// Represents a Win32 virtual-key code.
-/// Unknown values are captured in the `Other(u8)` variant.
+///
+/// Unknown values are captured in the [`Other`](VirtualKey::Other) variant.
+///
 /// See: <https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes>
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, FromPrimitive, IntoPrimitive)]
@@ -197,7 +199,7 @@ impl VirtualKey {
     /// Return a short, human-friendly string for this key.
     ///
     /// For known keys this returns a borrowed `&'static str`. For unknown
-    /// values (`Other(u8)`) this returns an owned string like `VK_0xNN`.
+    /// values ([`Other`](VirtualKey::Other) this returns an owned string like `VK_0xNN`.
     #[must_use]
     pub fn to_str(&self) -> Cow<'static, str> {
         match self {
@@ -322,6 +324,30 @@ impl VirtualKey {
     #[must_use]
     pub fn from_raw(vk: u8) -> Self {
         Self::from_primitive(vk)
+    }
+
+    #[must_use]
+    pub fn is_modifier(self) -> bool {
+        matches!(
+            self,
+            Self::Shift
+                | Self::Control
+                | Self::Menu
+                | Self::LShift
+                | Self::RShift
+                | Self::LControl
+                | Self::RControl
+                | Self::LMenu
+                | Self::RMenu
+        )
+    }
+
+    #[must_use]
+    pub fn is_mouse(self) -> bool {
+        matches!(
+            self,
+            Self::LButton | Self::RButton | Self::MButton | Self::XButton1 | Self::XButton2
+        )
     }
 }
 

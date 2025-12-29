@@ -1,4 +1,5 @@
 #![cfg(windows)]
+#![cfg_attr(feature = "doc-cfg", featre(doc_cfg))]
 #![warn(clippy::pedantic)]
 #![allow(
     clippy::missing_errors_doc,

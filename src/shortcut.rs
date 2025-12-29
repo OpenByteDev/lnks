@@ -203,7 +203,7 @@ impl Shortcut {
                 .context(Some("IShellLinkW"), "SetIconLocation")?;
         }
 
-        unsafe { link.SetShowCmd(self.window_state.to_raw()) }
+        unsafe { link.SetShowCmd(self.window_state.into()) }
             .context(Some("IShellLinkW"), "SetShowCmd")?;
         unsafe { link.SetHotkey(self.hotkey.map_or(0, |h| h.to_raw())) }
             .context(Some("IShellLinkW"), "SetHotkey")?;

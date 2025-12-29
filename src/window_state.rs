@@ -31,31 +31,17 @@ pub enum WindowState {
 }
 
 impl WindowState {
-    /// Creates a [`WindowState`] from a raw Win32 [`SHOW_WINDOW_CMD`](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/struct.SHOW_WINDOW_CMD.html).
+    /// Creates a [`WindowState`] from a raw Win32 [`i32`] code.
     ///
     /// Unknown values are mapped to [`Self::Other`].
     #[must_use]
-    pub fn from_raw(raw: SHOW_WINDOW_CMD) -> Self {
-        Self::from_code(raw.0)
-    }
-
-    /// Converts this [`WindowState`] into a raw Win32 [`SHOW_WINDOW_CMD`](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/struct.SHOW_WINDOW_CMD.html).
-    #[must_use]
-    pub fn to_raw(&self) -> SHOW_WINDOW_CMD {
-        SHOW_WINDOW_CMD(self.to_code())
-    }
-
-    /// Creates a [`WindowState`] from a raw integer value.
-    #[must_use]
-    pub fn from_code(raw: i32) -> Self {
+    pub fn from_raw(raw: i32) -> Self {
         Self::from_primitive(raw)
     }
 
-    /// Returns the underlying integer representation.
-    ///
-    /// This corresponds directly to the Win32 `SW_*` constants.
+    /// Converts this [`WindowState`] into a raw Win32 [`i32`] code.
     #[must_use]
-    pub fn to_code(&self) -> i32 {
+    pub fn to_raw(&self) -> i32 {
         i32::from(*self)
     }
 }
@@ -75,5 +61,17 @@ impl fmt::Display for WindowState {
 impl Default for WindowState {
     fn default() -> Self {
         Self::Normal
+    }
+}
+
+impl From<SHOW_WINDOW_CMD> for WindowState {
+    fn from(ws: SHOW_WINDOW_CMD) -> Self {
+        Self::from_raw(ws.0)
+    }
+}
+
+impl From<WindowState> for SHOW_WINDOW_CMD {
+    fn from(ws: WindowState) -> Self {
+        Self(ws.to_raw())
     }
 }

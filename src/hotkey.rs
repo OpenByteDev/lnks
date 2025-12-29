@@ -1,7 +1,7 @@
 use crate::VirtualKey;
 use enumflags2::{BitFlags, bitflags};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
-use std::fmt;
+use std::{fmt, num::NonZeroU16};
 use windows::Win32::UI::Controls::{HOTKEYF_ALT, HOTKEYF_CONTROL, HOTKEYF_EXT, HOTKEYF_SHIFT};
 
 #[allow(clippy::cast_possible_truncation)]
@@ -159,6 +159,26 @@ impl Hotkey {
         let low = u16::from(self.key.to_raw());
         let high = u16::from(self.modifiers.bits()) << 8;
         high | low
+    }
+}
+
+impl From<NonZeroU16> for Hotkey {
+    fn from(hk: NonZeroU16) -> Self {
+        Self::from_raw(hk.get()).unwrap()
+    }
+}
+
+impl From<Hotkey> for NonZeroU16 {
+    fn from(h: Hotkey) -> Self {
+        unsafe { NonZeroU16::new_unchecked(h.to_raw()) }
+    }
+}
+
+impl TryFrom<u16> for Hotkey {
+    type Error = ();
+
+    fn try_from(hk: u16) -> Result<Self, Self::Error> {
+        Self::from_raw(hk).ok_or(())
     }
 }
 

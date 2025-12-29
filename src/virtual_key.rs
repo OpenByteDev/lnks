@@ -330,3 +330,17 @@ impl fmt::Display for VirtualKey {
         write!(f, "{}", self.to_str())
     }
 }
+
+impl TryFrom<VIRTUAL_KEY> for VirtualKey {
+    type Error = ();
+
+    fn try_from(vk: VIRTUAL_KEY) -> Result<Self, Self::Error> {
+        u8::try_from(vk.0).map(Self::from_raw).map_err(|_| ())
+    }
+}
+
+impl From<VirtualKey> for VIRTUAL_KEY {
+    fn from(vk: VirtualKey) -> Self {
+        Self(u16::from(vk.to_raw()))
+    }
+}

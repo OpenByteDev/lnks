@@ -34,8 +34,8 @@ uuid = { version = "1", features = ["v4"], default-features = false }
 default = ["runas"]
 runas = []
 serde = ["dep:serde", "enumflags2/serde"]
-doc-cfg = []
 
 [package.metadata.docs.rs]
 targets = ["x86_64-pc-windows-msvc"]
 all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

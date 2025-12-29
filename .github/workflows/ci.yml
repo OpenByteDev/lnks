@@ -21,19 +21,27 @@ jobs:
         target: ["x86_64-pc-windows-msvc", "x86_64-pc-windows-gnu", "i686-pc-windows-msvc"]
     steps:
     - uses: actions/checkout@v6
-    
     - name: Install latest rust ${{ matrix.toolchain }} for ${{ matrix.target }}
       uses: dtolnay/rust-toolchain@master
       with:
           target: ${{ matrix.target }}
           toolchain: ${{ matrix.toolchain }}
-      
     - name: Build
       run: cargo build --target ${{ matrix.target }} --all-targets
-      
     - name: Test
       run: cargo test --target ${{ matrix.target }} --all-targets --all-features -- --nocapture
 
+  hack:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install latest nightly
+        uses: dtolnay/rust-toolchain@nightly
+      - name: cargo install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
+      - name: cargo hack
+        run: cargo hack --feature-powerset check
+        
   documentation:
     runs-on: windows-latest
     steps:

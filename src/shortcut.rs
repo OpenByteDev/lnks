@@ -19,8 +19,9 @@ use crate::{
     Hotkey, Icon, Result, WindowState,
     buf_utils::{com_get_optional_path, com_get_optional_string},
     com::{self, ComResultExt},
-    runas,
 };
+#[cfg(feature = "runas")]
+use crate::runas;
 
 /// Represents a Windows shortcut (`.lnk`) file.
 ///

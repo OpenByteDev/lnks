@@ -73,7 +73,7 @@ impl HotkeyModifier {
 ///
 /// See also <https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinkw-gethotkey>.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Hotkey {
     /// Virtual key code
     key: VirtualKey,
@@ -203,5 +203,16 @@ impl fmt::Display for Hotkey {
         } else {
             write!(f, "{}", self.key)
         }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for Hotkey {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let raw = u16::deserialize(deserializer)?;
+        Hotkey::from_raw(raw).ok_or_else(|| serde::de::Error::custom("invalid hotkey"))
     }
 }

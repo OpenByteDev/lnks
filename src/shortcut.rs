@@ -27,6 +27,7 @@ use crate::{
 ///
 /// See also <https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishelllinka>
 #[derive(Debug, Clone, Default)]
+#[allow(clippy::unsafe_derive_deserialize)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Shortcut {
     /// Path to the target executable or file.

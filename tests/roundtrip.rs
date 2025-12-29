@@ -1,8 +1,5 @@
 use lnks::{Icon, Shortcut, WindowState};
-use std::{
-    env,
-    path::PathBuf,
-};
+use std::{env, path::PathBuf};
 
 use crate::temp_path::TempPath;
 

@@ -1,5 +1,5 @@
 use std::{
-    fs,
+    borrow::Cow,
     path::{Path, PathBuf},
     ptr,
 };
@@ -52,6 +52,32 @@ pub struct Shortcut {
     pub run_as_admin: bool,
 }
 
+/// Options for loading a [`Shortcut`], can be specified when using [`load_with_options`](Shortcut::load_with_options).
+#[derive(Debug, Clone, Copy)]
+pub struct LoadOptions {
+    /// If true, canonicalizes paths.
+    pub canonicalize: bool,
+}
+
+impl Default for LoadOptions {
+    fn default() -> Self {
+        Self { canonicalize: true } // keep current behavior as default
+    }
+}
+
+/// Options for saving a [`Shortcut`], can be specified when using [`save_with_options`](Shortcut::save_with_options).
+#[derive(Debug, Clone, Copy)]
+pub struct SaveOptions {
+    /// If true, canonicalizes paths.
+    pub canonicalize: bool,
+}
+
+impl Default for SaveOptions {
+    fn default() -> Self {
+        Self { canonicalize: true }
+    }
+}
+
 impl Shortcut {
     /// Create a new empty [`ShortcutBuilder`].
     #[must_use]
@@ -60,6 +86,7 @@ impl Shortcut {
     }
 
     /// Creates a new shortcut targeting the given executable.
+    #[must_use]
     pub fn new(target_path: impl Into<PathBuf>) -> Self {
         let target_path = target_path.into();
         Self {
@@ -75,6 +102,41 @@ impl Shortcut {
 
     /// Loads a `.lnk` file from disk and parses it into a [`Shortcut`].
     pub fn load(path: impl AsRef<Path>) -> Result<Self> {
+        Self::load_with_options(path, LoadOptions::default())
+    }
+
+    /// Canonicalizes all filesystem paths contained in this shortcut in-place.
+    ///
+    /// The following fields are affected:
+    /// - [`target_path`](Self::target_path)
+    /// - [`working_dir`](Self::working_dir)
+    /// - [`icon.path`](Icon::path)
+    ///
+    /// # Base path
+    /// If a path is **relative** and `base` is [`Some`], it is first resolved
+    /// relative to `base` (typically the directory containing the `.lnk` file)
+    /// and then canonicalized.
+    /// 
+    /// # Errors
+    /// Errors during canonicalization are ignored.
+    pub fn canonicalize(&mut self, base: Option<&Path>) {
+        try_canonicalize_with_base_inplace_opt(self.target_path.as_mut(), base);
+        try_canonicalize_with_base_inplace_opt(self.working_dir.as_mut(), base);
+        try_canonicalize_with_base_inplace_opt(self.icon.as_mut().map(|i| &mut i.path), base);
+    }
+
+    /// Returns a canonicalized clone of this shortcut.
+    ///
+    /// This is a non-mutating variant of [`canonicalize`](Self::canonicalize).
+    /// The original [`Shortcut`] is left unchanged.
+    pub fn canonicalized(&self, base: Option<&Path>) -> Self {
+        let mut clone = self.clone();
+        clone.canonicalize(base);
+        clone
+    }
+
+    /// Loads a `.lnk` file from disk and parses it into a [`Shortcut`], considering the given [`LoadOptions`].
+    pub fn load_with_options(path: impl AsRef<Path>, options: LoadOptions) -> Result<Self> {
         let path = path.as_ref();
         com::ensure_initialized()?;
 
@@ -82,6 +144,7 @@ impl Shortcut {
             .context(None, "CoCreateInstance")?;
         let persist: IPersistFile = link.cast().context(Some("IUnknown"), "QueryInterface")?;
 
+        let path = dunce::canonicalize(path)?;
         let wpath = U16CString::from_os_str(path.as_os_str())?;
         unsafe { persist.Load(PCWSTR(wpath.as_ptr()), STGM(0)) }
             .context(Some("IPersistFile"), "Load")?;
@@ -118,7 +181,7 @@ impl Shortcut {
         #[cfg(feature = "runas")]
         let run_as_admin = runas::read_runas_bit(&path)?;
 
-        let shortcut = Shortcut {
+        let mut shortcut = Shortcut {
             target_path,
             arguments,
             working_dir,
@@ -129,42 +192,60 @@ impl Shortcut {
             #[cfg(feature = "runas")]
             run_as_admin,
         };
+
+        if options.canonicalize {
+            shortcut.canonicalize(path.parent());
+        }
+
         Ok(shortcut)
     }
 
     /// Saves the shortcut to disk as a `.lnk` file.
     pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
-        let path = path.as_ref();
+        self.save_with_options(path, SaveOptions::default())
+    }
+
+    /// Saves the shortcut to disk as a `.lnk` file, considering the given [`SaveOptions`].
+    pub fn save_with_options(&self, path: impl AsRef<Path>, options: SaveOptions) -> Result<()> {
         com::ensure_initialized()?;
+
+        let path = maybe_try_canonicalize(path.as_ref(), options.canonicalize);
+        let base = path.parent();
 
         let link: IShellLinkW = unsafe { CoCreateInstance(&ShellLink, None, CLSCTX_INPROC_SERVER) }
             .context(None, "CoCreateInstance")?;
 
-        if let Some(tp) = &self.target_path {
-            let w = U16CString::from_os_str(tp.as_os_str())?;
+        if let Some(target_path) = &self.target_path {
+            let target_path =
+                maybe_try_canonicalize_with_base(target_path, base, options.canonicalize);
+            let w = U16CString::from_os_str(target_path.as_os_str())?;
             unsafe { link.SetPath(PCWSTR(w.as_ptr())) }.context(Some("IShellLinkW"), "SetPath")?;
         }
 
-        if let Some(args) = &self.arguments {
-            let w = U16CString::from_str(args)?;
+        if let Some(arguments) = &self.arguments {
+            let w = U16CString::from_str(arguments)?;
             unsafe { link.SetArguments(PCWSTR(w.as_ptr())) }
                 .context(Some("IShellLinkW"), "SetArguments")?;
         }
 
-        if let Some(wd) = &self.working_dir {
-            let w = U16CString::from_os_str(wd.as_os_str())?;
+        if let Some(working_dir) = &self.working_dir {
+            let working_dir =
+                maybe_try_canonicalize_with_base(working_dir, base, options.canonicalize);
+            let w = U16CString::from_os_str(working_dir.as_os_str())?;
             unsafe { link.SetWorkingDirectory(PCWSTR(w.as_ptr())) }
                 .context(Some("IShellLinkW"), "SetWorkingDirectory")?;
         }
 
-        if let Some(desc) = &self.description {
-            let w = U16CString::from_str(desc)?;
+        if let Some(description) = &self.description {
+            let w = U16CString::from_str(description)?;
             unsafe { link.SetDescription(PCWSTR(w.as_ptr())) }
                 .context(Some("IShellLinkW"), "SetDescription")?;
         }
 
         if let Some(icon) = &self.icon {
-            let w = U16CString::from_os_str(icon.path.as_os_str())?;
+            let icon_path =
+                maybe_try_canonicalize_with_base(&icon.path, base, options.canonicalize);
+            let w = U16CString::from_os_str(icon_path.as_os_str())?;
             unsafe { link.SetIconLocation(PCWSTR(w.as_ptr()), icon.index) }
                 .context(Some("IShellLinkW"), "SetIconLocation")?;
         }
@@ -183,7 +264,7 @@ impl Shortcut {
 
         #[cfg(feature = "runas")]
         if self.run_as_admin {
-            runas::write_runas_bit(path, true)?;
+            runas::write_runas_bit(&path, true)?;
         }
 
         Ok(())
@@ -191,10 +272,9 @@ impl Shortcut {
 }
 
 fn cmp_path(a: &Path, b: &Path) -> bool {
-    match (fs::canonicalize(a), fs::canonicalize(b)) {
-        (Ok(a), Ok(b)) => a.as_os_str().eq_ignore_ascii_case(b.as_os_str()),
-        _ => a.as_os_str().eq_ignore_ascii_case(b.as_os_str()),
-    }
+    try_canonicalize(a)
+        .as_os_str()
+        .eq_ignore_ascii_case(try_canonicalize(b).as_os_str())
 }
 
 #[allow(clippy::ref_option)]
@@ -317,5 +397,79 @@ impl ShortcutBuilder {
     #[must_use]
     pub fn build(self) -> Shortcut {
         self.inner
+    }
+}
+
+fn try_canonicalize_inplace(path: &mut PathBuf) -> bool {
+    if let Ok(canon) = dunce::canonicalize(&path) {
+        *path = canon;
+        true
+    } else {
+        false
+    }
+}
+/* 
+fn try_canonicalize_inplace_opt(opt: Option<&mut PathBuf>) -> bool {
+    if let Some(path) = opt {
+        try_canonicalize_inplace(path)
+    } else {
+        false
+    }
+}
+*/
+#[allow(clippy::unnecessary_unwrap)]
+fn try_canonicalize_with_base_inplace(path: &mut PathBuf, base: Option<&Path>) -> bool {
+    if path.is_absolute() || base.is_none() {
+        try_canonicalize_inplace(path)
+    } else {
+        let mut absolute = base.unwrap().join(&path);
+        let success = try_canonicalize_inplace(&mut absolute);
+        if success {
+            *path = absolute;
+        }
+        success
+    }
+}
+fn try_canonicalize_with_base_inplace_opt(opt: Option<&mut PathBuf>, base: Option<&Path>) -> bool {
+    if let Some(path) = opt {
+        try_canonicalize_with_base_inplace(path, base)
+    } else {
+        false
+    }
+}
+
+fn try_canonicalize(path: &'_ Path) -> Cow<'_, Path> {
+    dunce::canonicalize(path).map_or_else(|_| Cow::Borrowed(path), Cow::Owned)
+}
+fn maybe_try_canonicalize(path: &'_ Path, enabled: bool) -> Cow<'_, Path> {
+    if enabled {
+        try_canonicalize(path)
+    } else {
+        Cow::Borrowed(path)
+    }
+}
+
+#[allow(clippy::unnecessary_unwrap)]
+fn try_canonicalize_with_base<'a>(path: &'a Path, base: Option<&'_ Path>) -> Cow<'a, Path> {
+    if path.is_absolute() || base.is_none() {
+        try_canonicalize(path)
+    } else {
+        let mut absolute = base.unwrap().join(path);
+        if try_canonicalize_inplace(&mut absolute) {
+            Cow::Owned(absolute)
+        } else {
+            Cow::Borrowed(path)
+        }
+    }
+}
+fn maybe_try_canonicalize_with_base<'a>(
+    path: &'a Path,
+    base: Option<&'_ Path>,
+    enabled: bool,
+) -> Cow<'a, Path> {
+    if enabled {
+        try_canonicalize_with_base(path, base)
+    } else {
+        Cow::Borrowed(path)
     }
 }

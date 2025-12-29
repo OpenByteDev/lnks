@@ -24,6 +24,7 @@ widestring = { version = "1.2", features = ["std"], default-features = false }
 num_enum = { version = "0.7", default-features = false }
 thiserror = { version = "2.0", default-features = false }
 enumflags2 = { version = "0.7", default-features = false }
+dunce = { version = "1.0", default-features = false }
 
 [dev-dependencies]
 dunce = { version = "1", default-features = false }

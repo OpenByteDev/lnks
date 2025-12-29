@@ -91,7 +91,7 @@ impl Hotkey {
     }
 
     /// Identical to [`new`](Self::new) but assumes inputs are valid.
-    /// 
+    ///
     /// # Safety
     /// The key has to be non-zero.
     #[must_use]
@@ -140,7 +140,7 @@ impl Hotkey {
     }
 
     /// Identical to [`from_raw`](Self::from_raw) but assumes input is valid.
-    /// 
+    ///
     /// # Safety
     /// The key low byte of the word has to be non-zero and the high byte has to contain only valid modifier flags.
     #[must_use]

@@ -15,7 +15,10 @@ const fn convert(key: VIRTUAL_KEY) -> u8 {
 ///
 /// See: <https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes>
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, FromPrimitive, IntoPrimitive, PartialOrd, Ord, Hash,
+)]
 pub enum VirtualKey {
     // 0x01 - 0x06: Mouse buttons (documented order)
     /// Left mouse button

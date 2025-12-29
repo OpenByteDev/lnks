@@ -6,9 +6,12 @@ use windows::Win32::UI::WindowsAndMessaging::{
 
 /// Initial window display state for a launched application.
 ///
-/// See also <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow>
+/// See <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow>
 #[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, IntoPrimitive, FromPrimitive)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, IntoPrimitive, FromPrimitive,
+)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum WindowState {
     /// Normal window (`SW_SHOWNORMAL`).
     ///

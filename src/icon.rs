@@ -5,6 +5,7 @@ use std::{
 
 /// Icon resource used by a Windows shortcut.
 #[derive(Debug, Clone, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Icon {
     /// Path to the file containing the icon resource.
     ///

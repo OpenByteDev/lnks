@@ -14,6 +14,7 @@ const fn convert(code: u32) -> u8 {
 #[bitflags]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, TryFromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum HotkeyModifier {
     /// Shift key modifier.
     Shift = convert(HOTKEYF_SHIFT),
@@ -72,6 +73,7 @@ impl HotkeyModifier {
 ///
 /// See also <https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinkw-gethotkey>.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hotkey {
     /// Virtual key code
     key: VirtualKey,

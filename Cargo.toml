@@ -25,6 +25,7 @@ num_enum = { version = "0.7", default-features = false }
 thiserror = { version = "2.0", default-features = false }
 enumflags2 = { version = "0.7", default-features = false }
 dunce = { version = "1.0", default-features = false }
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 [dev-dependencies]
 dunce = { version = "1", default-features = false }
@@ -33,6 +34,7 @@ uuid = { version = "1", features = ["v4"], default-features = false  }
 [features]
 default = ["runas"]
 runas = []
+serde = ["dep:serde", "enumflags2/serde"]
 doc-cfg = []
 
 [package.metadata.docs.rs]
